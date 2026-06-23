@@ -1,0 +1,6 @@
+{
+  "name": "Patient Health Wallet",
+  "description": "A trilingual personal health records app for patients in Sri Lanka to store and share medical documents, medications, and doctor visits offline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
