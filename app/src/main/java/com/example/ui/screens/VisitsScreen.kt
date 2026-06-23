@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
@@ -44,6 +45,7 @@ fun VisitsScreen(navController: NavController, viewModel: HealthViewModel) {
     val documents by viewModel.documents.collectAsState()
     
     var showAddDialog by remember { mutableStateOf(false) }
+    var selectedVisit by remember { mutableStateOf<DoctorVisit?>(null) }
 
     Scaffold(
         topBar = {
@@ -68,7 +70,10 @@ fun VisitsScreen(navController: NavController, viewModel: HealthViewModel) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showAddDialog = true },
+                onClick = {
+                    selectedVisit = null
+                    showAddDialog = true
+                },
                 containerColor = PrimaryDarkTeal,
                 contentColor = White
             ) {
@@ -84,14 +89,34 @@ fun VisitsScreen(navController: NavController, viewModel: HealthViewModel) {
             LazyColumn(modifier = Modifier.padding(padding).padding(16.dp)) {
                 items(visits) { visit ->
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp)
+                            .clickable {
+                                selectedVisit = visit
+                                showAddDialog = true
+                            },
                         colors = CardDefaults.cardColors(containerColor = BackgroundLightTeal)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.MedicalServices, contentDescription = null, tint = PrimaryDarkTeal, modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(8.dp))
-                                Text(visit.doctorName, fontWeight = FontWeight.Bold, color = PrimaryDarkTeal, fontSize = 18.sp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                    Icon(Icons.Filled.MedicalServices, contentDescription = null, tint = PrimaryDarkTeal, modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(visit.doctorName, fontWeight = FontWeight.Bold, color = PrimaryDarkTeal, fontSize = 18.sp)
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(PrimaryDarkTeal.copy(alpha = 0.12f))
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Icon(Icons.Filled.Edit, contentDescription = "Edit Log", tint = PrimaryDarkTeal, modifier = Modifier.size(14.dp))
+                                }
                             }
                             Spacer(Modifier.height(8.dp))
                             
@@ -136,142 +161,27 @@ fun VisitsScreen(navController: NavController, viewModel: HealthViewModel) {
         }
         
         if (showAddDialog) {
-            AddVisitDialog(
-                documents = documents,
-                onDismiss = { showAddDialog = false },
-                onSave = { visit ->
-                    viewModel.insertVisit(visit)
-                    showAddDialog = false
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { showAddDialog = false },
+                properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.96f)
+                        .wrapContentHeight()
+                        .padding(vertical = 12.dp, horizontal = 4.dp)
+                ) {
+                    com.example.ui.components.ResponsiveDoctorVisitForm(
+                        selectedVisit = selectedVisit,
+                        documents = documents,
+                        onSave = { visit ->
+                            viewModel.insertVisit(visit)
+                            showAddDialog = false
+                        },
+                        onCancel = { showAddDialog = false }
+                    )
                 }
-            )
+            }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddVisitDialog(
-    documents: List<com.example.data.model.MedicalDocument>,
-    onDismiss: () -> Unit,
-    onSave: (DoctorVisit) -> Unit
-) {
-    var doctorName by remember { mutableStateOf("") }
-    var speciality by remember { mutableStateOf("") }
-    var hospital by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())) }
-    var reason by remember { mutableStateOf("") }
-    var notes by remember { mutableStateOf("") }
-    
-    // Set of selected document IDs
-    var selectedDocs by remember { mutableStateOf(setOf<Int>()) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text("Log Doctor Visit", color = PrimaryDarkTeal, fontWeight = FontWeight.Bold)
-        },
-        text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                OutlinedTextField(
-                    value = doctorName,
-                    onValueChange = { doctorName = it },
-                    label = { Text("Doctor Name") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = speciality,
-                    onValueChange = { speciality = it },
-                    label = { Text("Speciality") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = hospital,
-                    onValueChange = { hospital = it },
-                    label = { Text("Hospital / Clinic") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = { date = it },
-                    label = { Text("Date (YYYY-MM-DD)") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = reason,
-                    onValueChange = { reason = it },
-                    label = { Text("Reason for Visit") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = { notes = it },
-                    label = { Text("Notes") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    maxLines = 3
-                )
-                
-                if (documents.isNotEmpty()) {
-                    Text("Link Documents", fontWeight = FontWeight.SemiBold, color = PrimaryDarkTeal, modifier = Modifier.padding(bottom = 8.dp))
-                    documents.forEach { doc ->
-                        val isSelected = selectedDocs.contains(doc.id)
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable {
-                                    selectedDocs = if (isSelected) {
-                                        selectedDocs - doc.id
-                                    } else {
-                                        selectedDocs + doc.id
-                                    }
-                                }
-                                .padding(vertical = 8.dp, horizontal = 4.dp)
-                        ) {
-                            Checkbox(
-                                checked = isSelected,
-                                onCheckedChange = null,
-                                colors = CheckboxDefaults.colors(checkedColor = PrimaryDarkTeal)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(doc.type, fontWeight = FontWeight.Medium, color = Black.copy(alpha=0.8f))
-                                Text("Date: ${doc.date}", style = MaterialTheme.typography.bodySmall, color = Black.copy(alpha=0.6f))
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onSave(
-                        DoctorVisit(
-                            doctorName = doctorName,
-                            speciality = speciality,
-                            hospital = hospital,
-                            date = date,
-                            reason = reason,
-                            notes = notes,
-                            linkedDocumentIds = selectedDocs.joinToString(",")
-                        )
-                    )
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryDarkTeal)
-            ) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel", color = PrimaryDarkTeal)
-            }
-        }
-    )
 }
