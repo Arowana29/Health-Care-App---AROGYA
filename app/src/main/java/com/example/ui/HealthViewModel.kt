@@ -46,6 +46,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import java.util.concurrent.TimeUnit
 import com.example.worker.MedicationNotificationWorker
 import com.example.receiver.MedicationNotificationScheduler
+import com.example.receiver.AppointmentNotificationScheduler
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -1071,7 +1072,21 @@ class HealthViewModel(application: Application) : AndroidViewModel(application) 
 
     fun insertVisit(visit: DoctorVisit) {
         viewModelScope.launch {
-            repository.insertVisit(visit.copy(profileId = activeMemberId.value))
+            val visitWithProfile = visit.copy(profileId = activeMemberId.value)
+            val id = repository.insertVisit(visitWithProfile)
+            val finalVisit = if (visitWithProfile.id == 0) {
+                visitWithProfile.copy(id = id.toInt())
+            } else {
+                visitWithProfile
+            }
+            AppointmentNotificationScheduler.scheduleAppointmentReminders(getApplication(), finalVisit)
+        }
+    }
+
+    fun deleteVisit(visit: DoctorVisit) {
+        viewModelScope.launch {
+            repository.deleteVisit(visit)
+            AppointmentNotificationScheduler.cancelAppointmentReminders(getApplication(), visit.id)
         }
     }
 

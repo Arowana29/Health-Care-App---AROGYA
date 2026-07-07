@@ -61,8 +61,12 @@ class HealthRepository(private val healthWalletDao: HealthWalletDao) {
         healthWalletDao.deleteMedicationLog(log)
     }
 
-    suspend fun insertVisit(visit: DoctorVisit) {
-        healthWalletDao.insertVisit(visit)
+    suspend fun insertVisit(visit: DoctorVisit): Long {
+        return healthWalletDao.insertVisit(visit)
+    }
+
+    suspend fun deleteVisit(visit: DoctorVisit) {
+        healthWalletDao.deleteVisit(visit)
     }
 
     suspend fun insertDailyVitals(vitals: com.example.data.model.DailyVitals) {

@@ -71,6 +71,7 @@ fun DashboardScreen(navController: NavController, viewModel: HealthViewModel) {
     val vaccineLogs by viewModel.vaccineLogs.collectAsState()
     val isPremiumUser by viewModel.isPremiumUser.collectAsState()
     val documents by viewModel.documents.collectAsState()
+    val visits by viewModel.visits.collectAsState()
     
     val context = LocalContext.current
     val lastBackupTime by viewModel.lastBackupTime.collectAsState()
@@ -412,6 +413,133 @@ fun DashboardScreen(navController: NavController, viewModel: HealthViewModel) {
 
         if (selectedTab == 0) {
             // ================= Overview TabContent =================
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val todayCalendar = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+            val todayTime = todayCalendar.timeInMillis
+
+            val upcomingVisits = visits.mapNotNull { visit ->
+                try {
+                    val visitDate = sdf.parse(visit.date)
+                    if (visitDate != null) {
+                        val visitCalendar = java.util.Calendar.getInstance().apply {
+                            time = visitDate
+                            set(java.util.Calendar.HOUR_OF_DAY, 0)
+                            set(java.util.Calendar.MINUTE, 0)
+                            set(java.util.Calendar.SECOND, 0)
+                            set(java.util.Calendar.MILLISECOND, 0)
+                        }
+                        val visitTime = visitCalendar.timeInMillis
+                        val diffMs = visitTime - todayTime
+                        val diffDays = (diffMs / (1000 * 60 * 60 * 24)).toInt()
+                        if (diffDays >= 0) {
+                            visit to diffDays
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+            }.sortedBy { it.second }
+
+            if (upcomingVisits.isNotEmpty()) {
+                Card(
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = AlertLightRed),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .border(1.dp, ErrorRed.copy(alpha = 0.3f), RoundedCornerShape(24.dp))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Outlined.Notifications,
+                                contentDescription = "Reminder",
+                                tint = ErrorRed,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            TrilingualText(
+                                "Appointment Reminders",
+                                "සායන පැමිණීම් මතක් කිරීම්",
+                                "சந்திப்பு நினைவூட்டல்கள்",
+                                color = ErrorRed,
+                                scale = 1.0f
+                            )
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        upcomingVisits.take(2).forEach { (visit, daysLeft) ->
+                            val reminderTextEn = when (daysLeft) {
+                                0 -> "TODAY: Dr. ${visit.doctorName} (${visit.speciality}) at ${visit.hospital}"
+                                1 -> "TOMORROW: Dr. ${visit.doctorName} (${visit.speciality}) at ${visit.hospital}"
+                                else -> "In $daysLeft days: Dr. ${visit.doctorName} (${visit.speciality}) at ${visit.hospital}"
+                            }
+                            val reminderTextSi = when (daysLeft) {
+                                0 -> "අද දින: වෛද්‍ය ${visit.doctorName} (${visit.speciality}) - ${visit.hospital}"
+                                1 -> "හෙට දින: වෛද්‍ය ${visit.doctorName} (${visit.speciality}) - ${visit.hospital}"
+                                else -> "තව දින $daysLeft කින්: වෛද්‍ය ${visit.doctorName} (${visit.speciality}) - ${visit.hospital}"
+                            }
+                            val reminderTextTa = when (daysLeft) {
+                                0 -> "இன்று: Dr. ${visit.doctorName} (${visit.speciality}) - ${visit.hospital}"
+                                1 -> "நாளை: Dr. ${visit.doctorName} (${visit.speciality}) - ${visit.hospital}"
+                                else -> "இன்னும் $daysLeft நாட்களில்: Dr. ${visit.doctorName} (${visit.speciality}) - ${visit.hospital}"
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(White.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(42.dp)
+                                        .background(
+                                            if (daysLeft <= 1) ErrorRed else PrimaryDarkTeal,
+                                            RoundedCornerShape(8.dp)
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = if (daysLeft == 0) "Today" else if (daysLeft == 1) "1 Day" else "${daysLeft}d",
+                                        color = White,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Spacer(Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    TrilingualText(
+                                        reminderTextEn,
+                                        reminderTextSi,
+                                        reminderTextTa,
+                                        color = Black,
+                                        scale = 0.9f
+                                    )
+                                    Spacer(Modifier.height(2.dp))
+                                    Text(
+                                        text = "Reason: ${visit.reason}",
+                                        fontSize = 11.sp,
+                                        color = GrayText
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             Card(
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = White),

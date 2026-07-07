@@ -808,7 +808,8 @@ fun MedicationsScreen(navController: NavController, viewModel: HealthViewModel) 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.96f)
-                        .wrapContentHeight()
+                        .fillMaxHeight(0.9f)
+                        .wrapContentHeight(Alignment.CenterVertically)
                         .padding(vertical = 12.dp, horizontal = 4.dp)
                 ) {
                     ResponsiveMedicationForm(

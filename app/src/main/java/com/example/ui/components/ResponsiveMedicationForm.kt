@@ -275,6 +275,7 @@ fun ResponsiveMedicationForm(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             // Header
@@ -395,7 +396,6 @@ fun ResponsiveMedicationForm(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
                     ) {
                         FormInputsSectionLeft(
                             name = name,
@@ -531,6 +531,8 @@ fun FormInputsSectionLeft(
             isError = name.isBlank() && name.isNotEmpty(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,
@@ -549,6 +551,8 @@ fun FormInputsSectionLeft(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,
@@ -588,6 +592,8 @@ fun FormInputsSectionLeft(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,
@@ -796,6 +802,8 @@ fun FormInputsSectionRight(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,

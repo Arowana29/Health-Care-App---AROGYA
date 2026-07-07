@@ -36,6 +36,7 @@ fun ResponsiveDoctorVisitForm(
     documents: List<MedicalDocument>,
     onSave: (DoctorVisit) -> Unit,
     onCancel: () -> Unit,
+    onDelete: ((DoctorVisit) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -118,6 +119,7 @@ fun ResponsiveDoctorVisitForm(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             // Header Section
@@ -224,11 +226,10 @@ fun ResponsiveDoctorVisitForm(
                         }
                     }
                 } else {
-                    // Portrait vertical scrollable layout
+                    // Portrait layout
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
                     ) {
                         DoctorVisitInputsLeft(
                             doctorName = doctorName,
@@ -264,6 +265,18 @@ fun ResponsiveDoctorVisitForm(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (selectedVisit != null && onDelete != null) {
+                    TextButton(
+                        onClick = { onDelete(selectedVisit) },
+                        colors = ButtonDefaults.textButtonColors(contentColor = ErrorRed),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Delete Visit", modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Delete", fontWeight = FontWeight.SemiBold)
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                }
                 TextButton(
                     onClick = onCancel,
                     colors = ButtonDefaults.textButtonColors(contentColor = PrimaryDarkTeal),
@@ -340,6 +353,8 @@ fun DoctorVisitInputsLeft(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,
@@ -358,6 +373,8 @@ fun DoctorVisitInputsLeft(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,
@@ -400,6 +417,8 @@ fun DoctorVisitInputsLeft(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,
@@ -488,6 +507,8 @@ fun DoctorVisitInputsRight(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,
@@ -508,6 +529,8 @@ fun DoctorVisitInputsRight(
             maxLines = 5,
             shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Black,
+                unfocusedTextColor = Black,
                 focusedContainerColor = BackgroundLightTeal.copy(alpha = 0.4f),
                 unfocusedContainerColor = LightGrayBackground.copy(alpha = 0.5f),
                 focusedIndicatorColor = PrimaryDarkTeal,

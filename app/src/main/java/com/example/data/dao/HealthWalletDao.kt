@@ -58,7 +58,10 @@ interface HealthWalletDao {
     fun getAllVisits(): Flow<List<DoctorVisit>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVisit(visit: DoctorVisit)
+    suspend fun insertVisit(visit: DoctorVisit): Long
+
+    @androidx.room.Delete
+    suspend fun deleteVisit(visit: DoctorVisit)
 
     @Query("SELECT * FROM vital_signs WHERE type = :type ORDER BY date ASC")
     fun getVitalSignsByType(type: String): Flow<List<VitalSign>>

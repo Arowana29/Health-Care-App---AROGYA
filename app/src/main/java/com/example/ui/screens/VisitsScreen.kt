@@ -168,7 +168,8 @@ fun VisitsScreen(navController: NavController, viewModel: HealthViewModel) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.96f)
-                        .wrapContentHeight()
+                        .fillMaxHeight(0.9f)
+                        .wrapContentHeight(Alignment.CenterVertically)
                         .padding(vertical = 12.dp, horizontal = 4.dp)
                 ) {
                     com.example.ui.components.ResponsiveDoctorVisitForm(
@@ -178,7 +179,11 @@ fun VisitsScreen(navController: NavController, viewModel: HealthViewModel) {
                             viewModel.insertVisit(visit)
                             showAddDialog = false
                         },
-                        onCancel = { showAddDialog = false }
+                        onCancel = { showAddDialog = false },
+                        onDelete = { visit ->
+                            viewModel.deleteVisit(visit)
+                            showAddDialog = false
+                        }
                     )
                 }
             }
